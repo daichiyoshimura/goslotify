@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"slotify"
+	"goslotify"
 	"strings"
 	"time"
 )
@@ -12,7 +12,7 @@ func main() {
 	now := time.Now()
 
 	// This variable will probably be retrieved from something like a request. Since this is an example, we’ll create it artificially.
-	searchPeriod, err := slotify.NewSpan(now, now.Add(8*time.Hour))
+	searchPeriod, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
 	if err != nil {
 		panic(err)
 	}
@@ -48,8 +48,8 @@ func main() {
 	}
 
 	// To convert internally, define the map function for your input
-	mapin := func(s *ScheduledEvent) (*slotify.Block, error) {
-		return slotify.NewBlock(s.Start, s.End)
+	mapin := func(s *ScheduledEvent) (*goslotify.Block, error) {
+		return goslotify.NewBlock(s.Start, s.End)
 	}
 
 	// To convert internally, define the map function for your output
@@ -57,7 +57,7 @@ func main() {
 		Start time.Time
 		End   time.Time
 	}
-	mapout := func(s *slotify.Slot) (*TimeSlot, error) {
+	mapout := func(s *goslotify.Slot) (*TimeSlot, error) {
 		return &TimeSlot{
 			Start: s.Start(),
 			End:   s.End(),
@@ -65,7 +65,7 @@ func main() {
 	}
 
 	// Find available time slots!
-	slots, err := slotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout)
+	slots, err := goslotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout)
 	if err != nil {
 		panic(err)
 	}

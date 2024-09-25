@@ -1,8 +1,8 @@
-package slotify_test
+package goslotify_test
 
 import (
 	"fmt"
-	"slotify"
+	"goslotify"
 	"testing"
 	"time"
 )
@@ -27,12 +27,12 @@ func (m MockPeriod) String() string {
 func TestToString(t *testing.T) {
 	tests := []struct {
 		name   string
-		input  []slotify.Period
+		input  []goslotify.Period
 		output string
 	}{
 		{
 			name: "Multiple periods",
-			input: []slotify.Period{
+			input: []goslotify.Period{
 				MockPeriod{start: now.Add(0 * time.Hour), end: now.Add(1 * time.Hour)},
 				MockPeriod{start: now.Add(2 * time.Hour), end: now.Add(3 * time.Hour)},
 			},
@@ -46,14 +46,14 @@ func TestToString(t *testing.T) {
 		},
 		{
 			name:   "Empty periods",
-			input:  []slotify.Period{},
+			input:  []goslotify.Period{},
 			output: "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := slotify.ToString(tt.input)
+			result := goslotify.ToString(tt.input)
 			if result != tt.output {
 				t.Errorf("expected: %v, got: %v", tt.output, result)
 			}

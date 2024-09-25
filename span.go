@@ -1,4 +1,4 @@
-package slotify
+package goslotify
 
 import (
 	"fmt"

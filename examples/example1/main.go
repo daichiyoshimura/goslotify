@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"slotify"
+	"goslotify"
 	"time"
 )
 
@@ -11,7 +11,7 @@ func main() {
 	now := time.Now()
 
 	// This variable will probably be retrieved from something like a request. Since this is an example, we’ll create it artificially.
-	searchPeriod, err := slotify.NewSpan(now, now.Add(8*time.Hour))
+	searchPeriod, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
 	if err != nil {
 		panic(err)
 	}
@@ -37,16 +37,16 @@ func main() {
 		},
 	}
 
-	// Please define a function for the second argument that maps the values passed to `slotify.NewBlock` to the fields of your struct.
-	blocks, err := slotify.NewBlocks(events, func(s *ScheduledEvent) (*slotify.Block, error) {
-		return slotify.NewBlock(s.Start, s.End)
+	// Please define a function for the second argument that maps the values passed to `goslotify.NewBlock` to the fields of your struct.
+	blocks, err := goslotify.NewBlocks(events, func(s *ScheduledEvent) (*goslotify.Block, error) {
+		return goslotify.NewBlock(s.Start, s.End)
 	})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Scheduled Events (blocks):\n" + slotify.ToString(blocks))
+	fmt.Println("Scheduled Events (blocks):\n" + goslotify.ToString(blocks))
 
 	// Find available time slots!
-	slots := slotify.Find(blocks, searchPeriod)
-	fmt.Println("Available Times (slots):\n" + slotify.ToString(slots))
+	slots := goslotify.Find(blocks, searchPeriod)
+	fmt.Println("Available Times (slots):\n" + goslotify.ToString(slots))
 }

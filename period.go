@@ -1,8 +1,8 @@
-package slotify
+package goslotify
 
 import (
 	"fmt"
-	"slotify/internal/slice"
+	"goslotify/internal/slice"
 	"time"
 )
 

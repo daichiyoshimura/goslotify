@@ -1,4 +1,4 @@
-package slotify_test
+package goslotify_test
 
 import (
 	"os"

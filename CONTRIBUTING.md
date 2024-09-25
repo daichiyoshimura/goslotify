@@ -26,7 +26,7 @@ Click the "Fork" button in the top right corner of the repository page.
 Clone your fork to your local machine using the command:
 
 ```bash
-    git clone https://github.com/daichiyoshimura/go-slotify.git
+    git clone https://github.com/daichiyoshimura/goslotify.git
 ```
 
 1. **Create a Branch**

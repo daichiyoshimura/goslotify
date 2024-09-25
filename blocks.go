@@ -1,5 +1,5 @@
 // Find available time slot on schedule calender.
-package slotify
+package goslotify
 
 import (
 	"fmt"

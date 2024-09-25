@@ -1,8 +1,8 @@
-package slotify_test
+package goslotify_test
 
 import (
 	"fmt"
-	"slotify"
+	"goslotify"
 	"testing"
 	"time"
 )
@@ -30,7 +30,7 @@ func TestNewSpan(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			span, err := slotify.NewSpan(tt.start, tt.end)
+			span, err := goslotify.NewSpan(tt.start, tt.end)
 			if (err != nil) != tt.wantError {
 				t.Errorf("NewSpan() error = %v, wantError %v", err, tt.wantError)
 			}
@@ -44,7 +44,7 @@ func TestNewSpan(t *testing.T) {
 }
 
 func TestSpanClone(t *testing.T) {
-	span, _ := slotify.NewSpan(
+	span, _ := goslotify.NewSpan(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
@@ -78,7 +78,7 @@ func TestSpanRemain(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			span, _ := slotify.NewSpan(tt.start, tt.end)
+			span, _ := goslotify.NewSpan(tt.start, tt.end)
 			if span.Remain() != tt.expect {
 				t.Errorf("Remain() = %v, want %v", span.Remain(), tt.expect)
 			}
@@ -87,11 +87,11 @@ func TestSpanRemain(t *testing.T) {
 }
 
 func TestSpanShorten(t *testing.T) {
-	span, _ := slotify.NewSpan(
+	span, _ := goslotify.NewSpan(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
-	block := slotify.NewBlockWithoutValidating(
+	block := goslotify.NewBlockWithoutValidating(
 		now.Add(1*time.Hour),
 		now.Add(6*time.Hour),
 	)
@@ -106,7 +106,7 @@ func TestSpanShorten(t *testing.T) {
 }
 
 func TestSpanDrop(t *testing.T) {
-	span, _ := slotify.NewSpan(
+	span, _ := goslotify.NewSpan(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
@@ -119,7 +119,7 @@ func TestSpanDrop(t *testing.T) {
 }
 
 func TestSpanToSlot(t *testing.T) {
-	span, _ := slotify.NewSpan(
+	span, _ := goslotify.NewSpan(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
@@ -134,7 +134,7 @@ func TestSpanToSlot(t *testing.T) {
 func TestSpanString(t *testing.T) {
 	start := now.Add(0 * time.Hour)
 	end := now.Add(8 * time.Hour)
-	span, _ := slotify.NewSpan(
+	span, _ := goslotify.NewSpan(
 		start,
 		end,
 	)
