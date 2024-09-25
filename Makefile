@@ -35,6 +35,6 @@ bench:
 
 .PHONY: docs
 docs:
-	@echo "See http://localhost:6060/pkg/slotify" &
+	@echo "See http://localhost:6060/pkg/goslotify" &
 	@godoc -http=:6060
 	
