@@ -6,12 +6,14 @@ import (
 	"time"
 )
 
+// This is an interface representing a period. Block, Span, and Slot all implement the Period interface.
 type Period interface {
 	Start() time.Time
 	End() time.Time
 	String() string
 }
 
+// Represents the start time and end time as strings.
 func ToString[T Period](p []T) string {
 	return slice.String(p)
 }

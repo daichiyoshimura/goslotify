@@ -2,16 +2,17 @@ package slotify
 
 import "sort"
 
-// T is input type. this func sorts inputs internally
+// Sort your struct in chronological order.
 type SortFunc[T any] func(int, int, []T) bool
 
-// T is input type. this func convert input to *Block internally
+// Map your struct to a Block.
 type MapInFunc[T any] func(T) (*Block, error)
 
-// T is output type. this func convert *Slot to output internally
+// Map the Slot to your struct.
 type MapOutFunc[T any] func(*Slot) (T, error)
 
-// It returns a list of available time slots with converting your struct.
+// Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
+// Use this when passing and returning your struct.
 func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin MapInFunc[S], mapout MapOutFunc[T]) ([]T, error) {
 	slots := []T{}
 	if span == nil {
@@ -80,6 +81,7 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 }
 
 // It returns a list of available time slots.
+// Use this when passing and returning the pre-defined struct.
 func Find(blocks []*Block, span *Span) []*Slot {
 	sorter := func(i, j int, blocks []*Block) bool {
 		return blocks[i].Start().Before(blocks[j].Start())

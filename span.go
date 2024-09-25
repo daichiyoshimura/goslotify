@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// This is the period for searching for free time. The term ‘Span’ will be standardized here. Note that the Span is mutable.
 type Span struct {
 	start time.Time
 	end   time.Time
@@ -38,22 +39,27 @@ func (s *Span) String() string {
 	return format(s)
 }
 
+// Copy the values into a new instance to avoid mutating the original.
 func (s *Span) Clone() *Span {
 	return newSpan(s.start, s.end)
 }
 
+// Convert the Span into a Slot.
 func (s *Span) ToSlot() *Slot {
 	return newSlot(s.start, s.end)
 }
 
+// Whether there is remaining time in the period.
 func (s *Span) Remain() bool {
 	return s.start.Before(s.end)
 }
 
+// Shorten the period. (This assumes sorting, so it shortens from the start time)
 func (s *Span) Shorten(block *Block) {
 	s.start = block.end
 }
 
+// Eliminate the period
 func (s *Span) Drop() {
 	s.start = s.end
 }

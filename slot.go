@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Available time slot returned as the result.
+// This refers to available free time. The term ‘Slot’ will be standardized here.
 type Slot struct {
 	start time.Time
 	end   time.Time
@@ -19,6 +19,7 @@ func newSlot(start, end time.Time) *Slot {
 	}
 }
 
+// Creates a new Slot.
 func NewSlot(start, end time.Time) (*Slot, error) {
 	if start.After(end) {
 		return nil, fmt.Errorf("invalid time arguments")
@@ -30,22 +31,27 @@ func createSlotFrom(span *Span, block *Block) *Slot {
 	return newSlot(span.start, block.start)
 }
 
+// Start time of the period.
 func (s *Slot) Start() time.Time {
 	return s.start
 }
 
+// Start time of the period.
 func (s *Slot) End() time.Time {
 	return s.end
 }
 
+// Represents the start time and end time as strings.
 func (s *Slot) String() string {
 	return format(s)
 }
 
+// Whether two Slots represent the same period
 func (s *Slot) Equal(other *Slot) bool {
 	return equal(s, other)
 }
 
+// Whether it has a start time earlier than the given Slot.
 func (s *Slot) SmallerThan(other *Slot) bool {
 	return s.start.Before(other.start)
 }
