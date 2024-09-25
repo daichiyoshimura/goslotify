@@ -1,6 +1,8 @@
 package slotify
 
-import "sort"
+import (
+	"sort"
+)
 
 // Sort your struct in chronological order.
 type SortFunc[T any] func(int, int, []T) bool
@@ -14,9 +16,8 @@ type MapOutFunc[T any] func(*Slot) (T, error)
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
 func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin MapInFunc[S], mapout MapOutFunc[T]) ([]T, error) {
-	slots := []T{}
-	if span == nil {
-		return slots, nil
+	if span == nil || !span.Remain() {
+		return []T{}, nil
 	}
 
 	target := span.Clone()
@@ -25,14 +26,15 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 		if err != nil {
 			return nil, err
 		}
-		slots = append(slots, slot)
-		return slots, nil
+		return []T{slot}, nil
 	}
 
 	sort.Slice(inputs, func(i, j int) bool {
 		return sorter(i, j, inputs)
 	})
 
+	j := 0
+	slots := make([]T, len(inputs)+1)
 	for _, input := range inputs {
 		block, err := mapin(input)
 		if err != nil {
@@ -54,7 +56,8 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 			if err != nil {
 				return nil, err
 			}
-			slots = append(slots, slot)
+			slots[j] = slot
+			j++
 			target.Shorten(block)
 			continue
 		}
@@ -64,7 +67,8 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 			if err != nil {
 				return nil, err
 			}
-			slots = append(slots, slot)
+			slots[j] = slot
+			j++
 			target.Drop()
 			break
 		}
@@ -75,9 +79,10 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 		if err != nil {
 			return nil, err
 		}
-		slots = append(slots, slot)
+		slots[j] = slot
+		j++
 	}
-	return slots, nil
+	return slots[:j], nil
 }
 
 // It returns a list of available time slots.

@@ -31,13 +31,13 @@ func NewBlock(start, end time.Time) (*Block, error) {
 
 // Generates a slice of Blocks. Specify your struct with time-related fields as input, and define a mapping function between input and Block in the mapper.
 func NewBlocks[T any](inputs []T, mapper func(T) (*Block, error)) ([]*Block, error) {
-	blocks := []*Block{}
-	for _, in := range inputs {
+	blocks := make([]*Block, len(inputs))
+	for i, in := range inputs {
 		block, err := mapper(in)
 		if err != nil {
 			return nil, err
 		}
-		blocks = append(blocks, block)
+		blocks[i] = block
 	}
 	return blocks, nil
 }
