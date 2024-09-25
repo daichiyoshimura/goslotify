@@ -36,7 +36,7 @@ func (s *Slot) Start() time.Time {
 	return s.start
 }
 
-// Start time of the period.
+// End time of the period.
 func (s *Slot) End() time.Time {
 	return s.end
 }

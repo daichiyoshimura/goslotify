@@ -27,14 +27,17 @@ func newSpan(start, end time.Time) *Span {
 	}
 }
 
+// Start time of the period.
 func (s *Span) Start() time.Time {
 	return s.start
 }
 
+// End time of the period.
 func (s *Span) End() time.Time {
 	return s.end
 }
 
+// Represents the start time and end time as strings.
 func (s *Span) String() string {
 	return format(s)
 }
