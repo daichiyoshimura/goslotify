@@ -32,3 +32,9 @@ test:
 .PHONY: bench
 bench:
 	@CGO_ENABLED=1 go test -bench=.
+
+.PHONY: docs
+docs:
+	@echo "See http://localhost:6060/pkg/slotify" &
+	@godoc -http=:6060
+	
