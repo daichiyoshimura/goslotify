@@ -38,10 +38,10 @@ func TestToString(t *testing.T) {
 			},
 			output: fmt.Sprintf(
 				"%s, %s\n%s, %s\n",
-				now.Add(0*time.Hour).String(),
-				now.Add(1*time.Hour).String(),
-				now.Add(2*time.Hour).String(),
-				now.Add(3*time.Hour).String(),
+				now.Add(0*time.Hour).Format(goslotify.TimeFormat),
+				now.Add(1*time.Hour).Format(goslotify.TimeFormat),
+				now.Add(2*time.Hour).Format(goslotify.TimeFormat),
+				now.Add(3*time.Hour).Format(goslotify.TimeFormat),
 			),
 		},
 		{

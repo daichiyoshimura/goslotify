@@ -93,7 +93,7 @@ func TestSlotString(t *testing.T) {
 		end,
 	)
 
-	want := fmt.Sprintf("%s, %s", start.String(), end.String())
+	want := fmt.Sprintf("%s, %s", start.Format(goslotify.TimeFormat), end.Format(goslotify.TimeFormat))
 	got := slot.String()
 	if got != want {
 		t.Errorf("Slot.String() = %s; want %s", got, want)
