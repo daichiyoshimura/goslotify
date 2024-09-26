@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const TimeFormat = "2006-01-02 15:04:05"
+
 type ScheduledEvent struct {
 	TableId uint
 	StartAt   time.Time
@@ -56,7 +58,7 @@ func main() {
 		},
 	}
 	fmt.Println("Scheduled Events (blocks: []*ScheduledEvent):\n" + toString(events, func(builder *strings.Builder, event *ScheduledEvent) {
-		builder.WriteString(fmt.Sprintf("%s, %s", event.StartAt.String(), event.EndAt.String()))
+		builder.WriteString(fmt.Sprintf("%s, %s", event.StartAt.Format(TimeFormat), event.EndAt.Format(TimeFormat)))
 		builder.WriteString("\n")
 	}))
 
@@ -88,7 +90,7 @@ func main() {
 	// Find available time slots!
 	slots := goslotify.FindWithMapper(events, span, mapin, mapout, goslotify.WithFilter(filter))
 	fmt.Println("Available Time Slots(slots: []*TimeSlot):\n" + toString(slots, func(builder *strings.Builder, slot *DiningTableSlot) {
-		builder.WriteString(fmt.Sprintf("%s, %s", slot.Start.String(), slot.End.String()))
+		builder.WriteString(fmt.Sprintf("%s, %s", slot.Start.Format(TimeFormat), slot.End.Format(TimeFormat)))
 		builder.WriteString("\n")
 	}))
 }
