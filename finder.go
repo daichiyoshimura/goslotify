@@ -110,17 +110,18 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 		}
 	}
 
-	if target.Remain() {
-		slot, err := mapout(target.ToSlot())
-		if err != nil {
-			return nil, err
-		}
-		if options.IsSetFilter() && options.FilterFunc(slot) {
-			return slots[:j], nil
-		}
-		slots[j] = slot
-		j++
+	if !target.Remain() {
+		return slots[:j], nil
 	}
+	slot, err := mapout(target.ToSlot())
+	if err != nil {
+		return nil, err
+	}
+	if options.IsSetFilter() && options.FilterFunc(slot) {
+		return slots[:j], nil
+	}
+	slots[j] = slot
+	j++
 	return slots[:j], nil
 }
 
