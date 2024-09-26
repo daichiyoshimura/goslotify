@@ -26,7 +26,7 @@ func (o *Options[Out]) IsSetFilter() bool {
 	return o.FilterFunc != nil
 }
 
-// Option Func 
+// Option Func
 type Option[Out any] func(*Options[Out])
 
 // Run with filter option
@@ -127,7 +127,7 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 
 // It returns a list of available time slots.
 // Use this when passing and returning the pre-defined struct.
-func Find(blocks []*Block, span *Span) []*Slot {
+func Find(blocks []*Block, span *Span, opts ...Option[*Slot]) []*Slot {
 	sorter := func(i, j int, blocks []*Block) bool {
 		return blocks[i].Start().Before(blocks[j].Start())
 	}
@@ -137,9 +137,6 @@ func Find(blocks []*Block, span *Span) []*Slot {
 	mapout := func(s *Slot) (*Slot, error) {
 		return s, nil
 	}
-	filter := func(s *Slot) bool {
-		return false
-	}
-	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, WithFilter(filter))
+	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, opts...)
 	return r
 }
