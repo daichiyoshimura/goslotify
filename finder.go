@@ -13,15 +13,18 @@ type MapInFunc[I any] func(I) (*Block, error)
 // Map the Slot to your struct.
 type MapOutFunc[O any] func(*Slot) (O, error)
 
-// Filter your struct in your condition.
+// (Optional)Filter your struct in your condition.
 type FilterFunc[O any] func(O) bool
 
+// Options
 type Options[O any] struct {
 	FilterFunc FilterFunc[O]
 }
 
+// Option Func 
 type Option[O any] func(*Options[O])
 
+// Run with filter option
 func WithFilter[O any](filter FilterFunc[O]) Option[O] {
 	return func(opts *Options[O]) {
 		opts.FilterFunc = filter
