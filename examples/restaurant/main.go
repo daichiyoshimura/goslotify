@@ -19,52 +19,60 @@ func main() {
 	fmt.Println("Search Period:\n" + searchPeriod.String() + "\n")
 
 	// This variable will probably be retrieved from something like a database record. Since this is an example, we’ll create it artificially.
-	type ScheduledEvent struct {
-		Start time.Time
-		End   time.Time
+	type Reservation struct {
+		TableId uint
+		Start  time.Time
+		End    time.Time
 	}
-	events := []*ScheduledEvent{
+	events := []*Reservation{
 		{
-			Start: now.Add(-1 * time.Hour),
-			End:   now.Add(1 * time.Hour),
+			TableId: 1,
+			Start:  now.Add(0 * time.Hour),
+			End:    now.Add(1 * time.Hour),
 		},
 		{
-			Start: now.Add(2 * time.Hour),
-			End:   now.Add(4 * time.Hour),
+			TableId: 1,
+			Start:  now.Add(2 * time.Hour),
+			End:    now.Add(3 * time.Hour),
 		},
 		{
-			Start: now.Add(3 * time.Hour),
-			End:   now.Add(5 * time.Hour),
+			TableId: 1,
+			Start:  now.Add(6 * time.Hour),
+			End:    now.Add(7 * time.Hour),
 		},
 	}
-	fmt.Println("Scheduled Events (blocks: []*ScheduledEvent):\n" + toString(events, func(builder *strings.Builder, event *ScheduledEvent) {
+	fmt.Println("Scheduled Events (blocks: []*Reservation):\n" + toString(events, func(builder *strings.Builder, event *Reservation) {
 		builder.WriteString(fmt.Sprintf("%s, %s", event.Start.String(), event.End.String()))
 		builder.WriteString("\n")
 	}))
 
 	// To sort internally, define the sort function for your input
-	sorter := func(i, j int, events []*ScheduledEvent) bool {
+	sorter := func(i, j int, events []*Reservation) bool {
 		return events[i].Start.Before(events[j].Start)
 	}
 
 	// To convert internally, define the map function for your input
-	mapin := func(s *ScheduledEvent) (*goslotify.Block, error) {
+	mapin := func(s *Reservation) (*goslotify.Block, error) {
 		return goslotify.NewBlock(s.Start, s.End)
 	}
 
 	// To convert internally, define the map function for your output
-	type TimeSlot struct {
-		Start time.Time
-		End   time.Time
+	type RoomSlot struct {
+		TableId uint
+		Start  time.Time
+		End    time.Time
 	}
-	mapout := func(s *goslotify.Slot) (*TimeSlot, error) {
-		return &TimeSlot{
-			Start: s.Start(),
-			End:   s.End(),
+	mapout := func(s *goslotify.Slot) (*RoomSlot, error) {
+		return &RoomSlot{
+			TableId: 1,
+			Start:  s.Start(),
+			End:    s.End(),
 		}, nil
 	}
-	filter := func(t *TimeSlot) bool {
-		return false
+
+	// To filter internally, define the filter function for your output
+	filter := func(t *RoomSlot) bool {
+		return t.End.Sub(t.Start) < (2 * time.Hour) // If the free time is within 2 hours, it will not be considered as free time.
 	}
 
 	// Find available time slots!
@@ -73,7 +81,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Available Times (slots: []*TimeSlot):\n" + toString(slots, func(builder *strings.Builder, slot *TimeSlot) {
+	fmt.Println("Available Times (slots: []*TimeSlot):\n" + toString(slots, func(builder *strings.Builder, slot *RoomSlot) {
 		builder.WriteString(fmt.Sprintf("%s, %s", slot.Start.String(), slot.End.String()))
 		builder.WriteString("\n")
 	}))
