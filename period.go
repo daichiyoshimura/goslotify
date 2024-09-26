@@ -2,7 +2,7 @@ package goslotify
 
 import (
 	"fmt"
-	"goslotify/internal/slice"
+	"strings"
 	"time"
 )
 
@@ -10,12 +10,16 @@ import (
 type Period interface {
 	Start() time.Time
 	End() time.Time
-	String() string
 }
 
 // Represents the start time and end time as strings.
 func ToString[T Period](p []T) string {
-	return slice.String(p)
+	var builder strings.Builder
+	for _, v := range p {
+		builder.WriteString(fmt.Sprintf("%s, %s", v.Start().String(), v.End().String()))
+		builder.WriteString("\n")
+	}
+	return builder.String()
 }
 
 func format[T Period](p T) string {

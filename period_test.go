@@ -21,7 +21,7 @@ func (m MockPeriod) End() time.Time {
 }
 
 func (m MockPeriod) String() string {
-	return m.start.String() + " - " + m.end.String()
+	return m.start.String() + ", " + m.end.String()
 }
 
 func TestToString(t *testing.T) {
@@ -37,7 +37,7 @@ func TestToString(t *testing.T) {
 				MockPeriod{start: now.Add(2 * time.Hour), end: now.Add(3 * time.Hour)},
 			},
 			output: fmt.Sprintf(
-				"%s - %s\n%s - %s\n",
+				"%s, %s\n%s, %s\n",
 				now.Add(0*time.Hour).String(),
 				now.Add(1*time.Hour).String(),
 				now.Add(2*time.Hour).String(),
