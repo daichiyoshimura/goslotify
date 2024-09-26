@@ -218,10 +218,6 @@ func TestFindWithMapper(t *testing.T) {
 	h := NewTestingHelper(now)
 	tests := testCases(h)
 
-	sortFunc := func(i int, j int, blocks []*goslotify.Block) bool {
-		return blocks[i].Start().Before(blocks[i].Start())
-	}
-
 	mapIn := func(b *goslotify.Block) *goslotify.Block {
 		return b
 	}
@@ -232,7 +228,7 @@ func TestFindWithMapper(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := goslotify.FindWithMapper(tt.blocks, tt.search, sortFunc, mapIn, mapOut, goslotify.WithFilter(tt.filter))
+			got := goslotify.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, goslotify.WithFilter(tt.filter))
 			if !slice.Equal(got, tt.want) {
 				t.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 			}

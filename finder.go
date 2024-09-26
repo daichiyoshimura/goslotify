@@ -4,11 +4,8 @@ import (
 	"sort"
 )
 
-// Sort your struct in chronological order.
-type SortFunc[In any] func(int, int, []In) bool
-
 // Map your struct to a Block.
-type MapInFunc[In any] func(In) *Block
+type MapInFunc[In Period] func(In) *Block
 
 // Map the Slot to your struct.
 type MapOutFunc[Out any] func(*Slot) Out
@@ -38,7 +35,7 @@ func WithFilter[Out any](filter FilterFunc[Out]) Option[Out] {
 
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
-func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], mapin MapInFunc[In], mapout MapOutFunc[Out], opts ...Option[Out]) []Out {
+func FindWithMapper[In Period, Out any](inputs []In, span *Span, mapin MapInFunc[In], mapout MapOutFunc[Out], opts ...Option[Out]) []Out {
 	options := Options[Out]{
 		FilterFunc: nil,
 	}
@@ -56,7 +53,7 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 	}
 
 	sort.Slice(inputs, func(i, j int) bool {
-		return sorter(i, j, inputs)
+		return inputs[i].Start().Before(inputs[j].Start())
 	})
 
 	j := 0
@@ -112,14 +109,11 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 // It returns a list of available time slots.
 // Use this when passing and returning the pre-defined struct.
 func Find(blocks []*Block, span *Span, opts ...Option[*Slot]) []*Slot {
-	sorter := func(i, j int, blocks []*Block) bool {
-		return blocks[i].Start().Before(blocks[j].Start())
-	}
 	mapin := func(b *Block) *Block {
 		return b
 	}
 	mapout := func(s *Slot) *Slot {
 		return s
 	}
-	return FindWithMapper(blocks, span, sorter, mapin, mapout, opts...)
+	return FindWithMapper(blocks, span, mapin, mapout, opts...)
 }
