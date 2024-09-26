@@ -13,9 +13,12 @@ type MapInFunc[T any] func(T) (*Block, error)
 // Map the Slot to your struct.
 type MapOutFunc[T any] func(*Slot) (T, error)
 
+// Filter your struct in your condition.
+type FilterFunc[T any] func(T) bool
+
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
-func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin MapInFunc[S], mapout MapOutFunc[T]) ([]T, error) {
+func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin MapInFunc[S], mapout MapOutFunc[T], filter FilterFunc[T]) ([]T, error) {
 	if span == nil || !span.Remain() {
 		return []T{}, nil
 	}
@@ -56,9 +59,12 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 			if err != nil {
 				return nil, err
 			}
+			target.Shorten(block)
+			if filter(slot) {
+				continue
+			}
 			slots[j] = slot
 			j++
-			target.Shorten(block)
 			continue
 		}
 
@@ -67,9 +73,12 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 			if err != nil {
 				return nil, err
 			}
+			target.Drop()
+			if filter(slot) {
+				break
+			}
 			slots[j] = slot
 			j++
-			target.Drop()
 			break
 		}
 	}
@@ -78,6 +87,9 @@ func FindWithMapper[S, T any](inputs []S, span *Span, sorter SortFunc[S], mapin 
 		slot, err := mapout(target.ToSlot())
 		if err != nil {
 			return nil, err
+		}
+		if filter(slot) {
+			return slots[:j], nil
 		}
 		slots[j] = slot
 		j++
@@ -97,6 +109,9 @@ func Find(blocks []*Block, span *Span) []*Slot {
 	mapout := func(s *Slot) (*Slot, error) {
 		return s, nil
 	}
-	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout)
+	filter := func(s *Slot) bool {
+		return false
+	}
+	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, filter)
 	return r
 }

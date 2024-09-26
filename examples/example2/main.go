@@ -63,9 +63,12 @@ func main() {
 			End:   s.End(),
 		}, nil
 	}
+	filter := func(t *TimeSlot) bool {
+		return false
+	}
 
 	// Find available time slots!
-	slots, err := goslotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout)
+	slots, err := goslotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout, filter)
 	if err != nil {
 		panic(err)
 	}
