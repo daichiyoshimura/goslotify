@@ -21,6 +21,11 @@ type Options[O any] struct {
 	FilterFunc FilterFunc[O]
 }
 
+// Whether the FilterFunc is set to Options
+func (o *Options[O]) IsSetFilter() bool {
+	return o.FilterFunc != nil
+}
+
 // Option Func 
 type Option[O any] func(*Options[O])
 
@@ -82,7 +87,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 				return nil, err
 			}
 			target.Shorten(block)
-			if options.FilterFunc != nil && options.FilterFunc(slot) {
+			if options.IsSetFilter() && options.FilterFunc(slot) {
 				continue
 			}
 			slots[j] = slot
@@ -96,7 +101,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 				return nil, err
 			}
 			target.Drop()
-			if options.FilterFunc != nil && options.FilterFunc(slot) {
+			if options.IsSetFilter() && options.FilterFunc(slot) {
 				break
 			}
 			slots[j] = slot
@@ -110,7 +115,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 		if err != nil {
 			return nil, err
 		}
-		if options.FilterFunc != nil && options.FilterFunc(slot) {
+		if options.IsSetFilter() && options.FilterFunc(slot) {
 			return slots[:j], nil
 		}
 		slots[j] = slot
