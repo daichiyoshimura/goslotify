@@ -109,11 +109,71 @@ func FindWithMapper[In Period, Out any](inputs []In, span *Span, mapin MapInFunc
 // It returns a list of available time slots.
 // Use this when passing and returning the pre-defined struct.
 func Find(blocks []*Block, span *Span, opts ...Option[*Slot]) []*Slot {
-	mapin := func(b *Block) *Block {
-		return b
+	options := Options[*Slot]{
+		FilterFunc: nil,
 	}
-	mapout := func(s *Slot) *Slot {
-		return s
+	for _, opt := range opts {
+		opt(&options)
 	}
-	return FindWithMapper(blocks, span, mapin, mapout, opts...)
+
+	if span == nil || !span.Remain() {
+		return []*Slot{}
+	}
+
+	target := span.Clone()
+	if len(blocks) == 0 {
+		return []*Slot{target.ToSlot()}
+	}
+
+	sort.Slice(blocks, func(i, j int) bool {
+		return blocks[i].Start().Before(blocks[j].Start())
+	})
+
+	j := 0
+	slots := make([]*Slot, len(blocks)+1)
+	for _, block := range blocks {
+		
+		if block.Contains(target) {
+			target.Drop()
+			break
+		}
+
+		if block.OverlapAtStart(target) {
+			target.Shorten(block)
+			continue
+		}
+
+		if block.IsContainedIn(target) {
+			slot := createSlotFrom(target, block)
+			target.Shorten(block)
+			if options.IsSetFilter() && options.FilterFunc(slot) {
+				continue
+			}
+			slots[j] = slot
+			j++
+			continue
+		}
+
+		if block.OverlapAtEnd(target) {
+			slot := createSlotFrom(target, block)
+			target.Drop()
+			if options.IsSetFilter() && options.FilterFunc(slot) {
+				break
+			}
+			slots[j] = slot
+			j++
+			break
+		}
+	}
+
+	if !target.Remain() {
+		return slots[:j]
+	}
+	slot := target.ToSlot()
+	if options.IsSetFilter() && options.FilterFunc(slot) {
+		return slots[:j]
+	}
+	slots[j] = slot
+	j++
+	return slots[:j]
 }

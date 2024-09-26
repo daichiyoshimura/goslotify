@@ -244,9 +244,34 @@ func BenchmarkFind(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, tt := range tests {
 			b.Run(tt.name, func(b *testing.B) {
-				got := goslotify.Find(tt.blocks, tt.search)
+				got := goslotify.Find(tt.blocks, tt.search, goslotify.WithFilter(tt.filter))
 				if !slice.Equal(got, tt.want) {
 					b.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
+				}
+			})
+		}
+	}
+}
+
+func BenchmarkFindWithMapper(b *testing.B) {
+	h := NewTestingHelper(now)
+	tests := testCases(h)
+	b.ResetTimer()
+
+	mapIn := func(b *goslotify.Block) *goslotify.Block {
+		return b
+	}
+
+	mapOut := func(s *goslotify.Slot) *goslotify.Slot {
+		return s
+	}
+
+	for i := 0; i < b.N; i++ {
+		for _, tt := range tests {
+			b.Run(tt.name, func(t *testing.B) {
+				got := goslotify.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, goslotify.WithFilter(tt.filter))
+				if !slice.Equal(got, tt.want) {
+					t.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 				}
 			})
 		}
