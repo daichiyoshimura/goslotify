@@ -5,41 +5,41 @@ import (
 )
 
 // Sort your struct in chronological order.
-type SortFunc[I any] func(int, int, []I) bool
+type SortFunc[In any] func(int, int, []In) bool
 
 // Map your struct to a Block.
-type MapInFunc[I any] func(I) (*Block, error)
+type MapInFunc[In any] func(In) (*Block, error)
 
 // Map the Slot to your struct.
-type MapOutFunc[O any] func(*Slot) (O, error)
+type MapOutFunc[Out any] func(*Slot) (Out, error)
 
 // (Optional)Filter your struct in your condition.
-type FilterFunc[O any] func(O) bool
+type FilterFunc[Out any] func(Out) bool
 
 // Options
-type Options[O any] struct {
-	FilterFunc FilterFunc[O]
+type Options[Out any] struct {
+	FilterFunc FilterFunc[Out]
 }
 
 // Whether the FilterFunc is set to Options
-func (o *Options[O]) IsSetFilter() bool {
+func (o *Options[Out]) IsSetFilter() bool {
 	return o.FilterFunc != nil
 }
 
 // Option Func 
-type Option[O any] func(*Options[O])
+type Option[Out any] func(*Options[Out])
 
 // Run with filter option
-func WithFilter[O any](filter FilterFunc[O]) Option[O] {
-	return func(opts *Options[O]) {
+func WithFilter[Out any](filter FilterFunc[Out]) Option[Out] {
+	return func(opts *Options[Out]) {
 		opts.FilterFunc = filter
 	}
 }
 
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
-func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin MapInFunc[I], mapout MapOutFunc[O], opts ...Option[O]) ([]O, error) {
-	options := Options[O]{
+func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], mapin MapInFunc[In], mapout MapOutFunc[Out], opts ...Option[Out]) ([]Out, error) {
+	options := Options[Out]{
 		FilterFunc: nil,
 	}
 	for _, opt := range opts {
@@ -47,7 +47,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 	}
 
 	if span == nil || !span.Remain() {
-		return []O{}, nil
+		return []Out{}, nil
 	}
 
 	target := span.Clone()
@@ -56,7 +56,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 		if err != nil {
 			return nil, err
 		}
-		return []O{slot}, nil
+		return []Out{slot}, nil
 	}
 
 	sort.Slice(inputs, func(i, j int) bool {
@@ -64,7 +64,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 	})
 
 	j := 0
-	slots := make([]O, len(inputs)+1)
+	slots := make([]Out, len(inputs)+1)
 	for _, input := range inputs {
 		block, err := mapin(input)
 		if err != nil {
