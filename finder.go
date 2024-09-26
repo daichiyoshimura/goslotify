@@ -16,9 +16,28 @@ type MapOutFunc[O any] func(*Slot) (O, error)
 // Filter your struct in your condition.
 type FilterFunc[O any] func(O) bool
 
+type Options[O any] struct {
+	FilterFunc FilterFunc[O]
+}
+
+type Option[O any] func(*Options[O])
+
+func WithFilter[O any](filter FilterFunc[O]) Option[O] {
+	return func(opts *Options[O]) {
+		opts.FilterFunc = filter
+	}
+}
+
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
-func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin MapInFunc[I], mapout MapOutFunc[O], filter FilterFunc[O]) ([]O, error) {
+func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin MapInFunc[I], mapout MapOutFunc[O], opts ...Option[O]) ([]O, error) {
+	options := Options[O]{
+		FilterFunc: nil,
+	}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
 	if span == nil || !span.Remain() {
 		return []O{}, nil
 	}
@@ -60,7 +79,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 				return nil, err
 			}
 			target.Shorten(block)
-			if filter(slot) {
+			if options.FilterFunc != nil && options.FilterFunc(slot) {
 				continue
 			}
 			slots[j] = slot
@@ -74,7 +93,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 				return nil, err
 			}
 			target.Drop()
-			if filter(slot) {
+			if options.FilterFunc != nil && options.FilterFunc(slot) {
 				break
 			}
 			slots[j] = slot
@@ -88,7 +107,7 @@ func FindWithMapper[I, O any](inputs []I, span *Span, sorter SortFunc[I], mapin 
 		if err != nil {
 			return nil, err
 		}
-		if filter(slot) {
+		if options.FilterFunc != nil && options.FilterFunc(slot) {
 			return slots[:j], nil
 		}
 		slots[j] = slot
@@ -112,6 +131,6 @@ func Find(blocks []*Block, span *Span) []*Slot {
 	filter := func(s *Slot) bool {
 		return false
 	}
-	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, filter)
+	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, WithFilter(filter))
 	return r
 }
