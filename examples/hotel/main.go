@@ -53,8 +53,9 @@ func main() {
 	}
 
 	// To convert internally, define the map function for your input
-	mapin := func(s *Booking) (*goslotify.Block, error) {
-		return goslotify.NewBlock(s.Start, s.End)
+	mapin := func(s *Booking) *goslotify.Block {
+		b, _ := goslotify.NewBlock(s.Start, s.End)
+		return b
 	}
 
 	// To convert internally, define the map function for your output
@@ -63,12 +64,12 @@ func main() {
 		Start  time.Time
 		End    time.Time
 	}
-	mapout := func(s *goslotify.Slot) (*RoomSlot, error) {
+	mapout := func(s *goslotify.Slot) *RoomSlot {
 		return &RoomSlot{
 			RoomId: 1,
 			Start:  s.Start(),
 			End:    s.End(),
-		}, nil
+		}
 	}
 
 	// To filter internally, define the filter function for your output
@@ -77,11 +78,7 @@ func main() {
 	}
 
 	// Find available time slots!
-	slots, err := goslotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout, goslotify.WithFilter(filter))
-	if err != nil {
-		panic(err)
-	}
-
+	slots := goslotify.FindWithMapper(events, searchPeriod, sorter, mapin, mapout, goslotify.WithFilter(filter))
 	fmt.Println("Available Times (slots: []*TimeSlot):\n" + toString(slots, func(builder *strings.Builder, slot *RoomSlot) {
 		builder.WriteString(fmt.Sprintf("%s, %s", slot.Start.String(), slot.End.String()))
 		builder.WriteString("\n")

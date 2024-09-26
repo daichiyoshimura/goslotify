@@ -11,11 +11,11 @@ func main() {
 	now := time.Now()
 
 	// This variable will probably be retrieved from something like a request. Since this is an example, we’ll create it artificially.
-	searchPeriod, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
+	searchSpan, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Search Period:\n" + searchPeriod.String() + "\n")
+	fmt.Println("Search Period:\n" + searchSpan.String() + "\n")
 
 	// This variable will probably be retrieved from something like a database record. Since this is an example, we’ll create it artificially.
 	type ScheduledEvent struct {
@@ -47,6 +47,6 @@ func main() {
 	fmt.Println("Scheduled Events (blocks):\n" + goslotify.ToString(blocks))
 
 	// Find available time slots!
-	slots := goslotify.Find(blocks, searchPeriod)
+	slots := goslotify.Find(blocks, searchSpan)
 	fmt.Println("Available Times (slots):\n" + goslotify.ToString(slots))
 }

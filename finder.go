@@ -8,10 +8,10 @@ import (
 type SortFunc[In any] func(int, int, []In) bool
 
 // Map your struct to a Block.
-type MapInFunc[In any] func(In) (*Block, error)
+type MapInFunc[In any] func(In) *Block
 
 // Map the Slot to your struct.
-type MapOutFunc[Out any] func(*Slot) (Out, error)
+type MapOutFunc[Out any] func(*Slot) Out
 
 // (Optional)Filter your struct in your condition.
 type FilterFunc[Out any] func(Out) bool
@@ -38,7 +38,7 @@ func WithFilter[Out any](filter FilterFunc[Out]) Option[Out] {
 
 // Calculate available time slots (Slot). Provide the scheduled block (Block) and the target period (Span).
 // Use this when passing and returning your struct.
-func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], mapin MapInFunc[In], mapout MapOutFunc[Out], opts ...Option[Out]) ([]Out, error) {
+func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], mapin MapInFunc[In], mapout MapOutFunc[Out], opts ...Option[Out]) []Out {
 	options := Options[Out]{
 		FilterFunc: nil,
 	}
@@ -47,16 +47,12 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 	}
 
 	if span == nil || !span.Remain() {
-		return []Out{}, nil
+		return []Out{}
 	}
 
 	target := span.Clone()
 	if len(inputs) == 0 {
-		slot, err := mapout(target.ToSlot())
-		if err != nil {
-			return nil, err
-		}
-		return []Out{slot}, nil
+		return []Out{mapout(target.ToSlot())}
 	}
 
 	sort.Slice(inputs, func(i, j int) bool {
@@ -66,11 +62,8 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 	j := 0
 	slots := make([]Out, len(inputs)+1)
 	for _, input := range inputs {
-		block, err := mapin(input)
-		if err != nil {
-			return nil, err
-		}
-
+		block := mapin(input)
+		
 		if block.Contains(target) {
 			target.Drop()
 			break
@@ -82,10 +75,7 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 		}
 
 		if block.IsContainedIn(target) {
-			slot, err := mapout(createSlotFrom(target, block))
-			if err != nil {
-				return nil, err
-			}
+			slot := mapout(createSlotFrom(target, block))
 			target.Shorten(block)
 			if options.IsSetFilter() && options.FilterFunc(slot) {
 				continue
@@ -96,10 +86,7 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 		}
 
 		if block.OverlapAtEnd(target) {
-			slot, err := mapout(createSlotFrom(target, block))
-			if err != nil {
-				return nil, err
-			}
+			slot := mapout(createSlotFrom(target, block))
 			target.Drop()
 			if options.IsSetFilter() && options.FilterFunc(slot) {
 				break
@@ -111,18 +98,15 @@ func FindWithMapper[In, Out any](inputs []In, span *Span, sorter SortFunc[In], m
 	}
 
 	if !target.Remain() {
-		return slots[:j], nil
+		return slots[:j]
 	}
-	slot, err := mapout(target.ToSlot())
-	if err != nil {
-		return nil, err
-	}
+	slot := mapout(target.ToSlot())
 	if options.IsSetFilter() && options.FilterFunc(slot) {
-		return slots[:j], nil
+		return slots[:j]
 	}
 	slots[j] = slot
 	j++
-	return slots[:j], nil
+	return slots[:j]
 }
 
 // It returns a list of available time slots.
@@ -131,12 +115,11 @@ func Find(blocks []*Block, span *Span, opts ...Option[*Slot]) []*Slot {
 	sorter := func(i, j int, blocks []*Block) bool {
 		return blocks[i].Start().Before(blocks[j].Start())
 	}
-	mapin := func(b *Block) (*Block, error) {
-		return b, nil
+	mapin := func(b *Block) *Block {
+		return b
 	}
-	mapout := func(s *Slot) (*Slot, error) {
-		return s, nil
+	mapout := func(s *Slot) *Slot {
+		return s
 	}
-	r, _ := FindWithMapper(blocks, span, sorter, mapin, mapout, opts...)
-	return r
+	return FindWithMapper(blocks, span, sorter, mapin, mapout, opts...)
 }
