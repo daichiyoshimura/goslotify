@@ -1,4 +1,4 @@
-package goslotify_test
+package timeslots_test
 
 import (
 	"os"

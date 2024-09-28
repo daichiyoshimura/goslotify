@@ -1,4 +1,4 @@
-package goslotify
+package timeslots
 
 import (
 	"sort"

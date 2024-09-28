@@ -1,201 +1,201 @@
-package goslotify_test
+package timeslots_test
 
 import (
-	"goslotify"
-	"goslotify/internal/slice"
+	"timeslots"
+	"timeslots/internal/slice"
 	"testing"
 	"time"
 )
 
 type testCase struct {
 	name   string
-	blocks []*goslotify.Block
-	search *goslotify.Span
-	filter goslotify.FilterFunc[*goslotify.Slot]
-	want   []*goslotify.Slot
+	blocks []*timeslots.Block
+	search *timeslots.Span
+	filter timeslots.FilterFunc[*timeslots.Slot]
+	want   []*timeslots.Slot
 }
 
 func testCases(h *TestingHelper) []testCase {
 	return []testCase{
 		{
 			name:   "No blocks",
-			blocks: []*goslotify.Block{},
+			blocks: []*timeslots.Block{},
 			search: h.Span(0, 1),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 1)},
+			want: []*timeslots.Slot{h.Slot(0, 1)},
 		},
 		{
 			name:   "Nil span",
-			blocks: []*goslotify.Block{},
+			blocks: []*timeslots.Block{},
 			search: nil,
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 		{
 			name:   "Empty span",
-			blocks: []*goslotify.Block{h.Block(0, 1)},
+			blocks: []*timeslots.Block{h.Block(0, 1)},
 			search: h.Span(0, 0),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 		{
 			name:   "One block before slot",
-			blocks: []*goslotify.Block{h.Block(-2, -1)},
+			blocks: []*timeslots.Block{h.Block(-2, -1)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 8)},
 		},
 		{
 			name:   "One block before slot boundary",
-			blocks: []*goslotify.Block{h.Block(-1, 0)},
+			blocks: []*timeslots.Block{h.Block(-1, 0)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 8)},
 		},
 		{
 			name:   "One block with overlap at start",
-			blocks: []*goslotify.Block{h.Block(-1, 1)},
+			blocks: []*timeslots.Block{h.Block(-1, 1)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(1, 8)},
+			want: []*timeslots.Slot{h.Slot(1, 8)},
 		},
 		{
 			name:   "One block with overlap at start boundary",
-			blocks: []*goslotify.Block{h.Block(0, 1)},
+			blocks: []*timeslots.Block{h.Block(0, 1)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(1, 8)},
+			want: []*timeslots.Slot{h.Slot(1, 8)},
 		},
 		{
 			name:   "One block is contained in slot",
-			blocks: []*goslotify.Block{h.Block(1, 5)},
+			blocks: []*timeslots.Block{h.Block(1, 5)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 1), h.Slot(5, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 1), h.Slot(5, 8)},
 		},
 		{
 			name:   "One block is contained in slot boundary (= One block contains slot boundary)",
-			blocks: []*goslotify.Block{h.Block(0, 8)},
+			blocks: []*timeslots.Block{h.Block(0, 8)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 		{
 			name:   "One block contains slot",
-			blocks: []*goslotify.Block{h.Block(-1, 9)},
+			blocks: []*timeslots.Block{h.Block(-1, 9)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 		{
 			name:   "One block with overlap at end boundary",
-			blocks: []*goslotify.Block{h.Block(3, 8)},
+			blocks: []*timeslots.Block{h.Block(3, 8)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 3)},
+			want: []*timeslots.Slot{h.Slot(0, 3)},
 		},
 		{
 			name:   "One block with overlap at end",
-			blocks: []*goslotify.Block{h.Block(3, 9)},
+			blocks: []*timeslots.Block{h.Block(3, 9)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 3)},
+			want: []*timeslots.Slot{h.Slot(0, 3)},
 		},
 		{
 			name:   "One block after slot boundary",
-			blocks: []*goslotify.Block{h.Block(8, 10)},
+			blocks: []*timeslots.Block{h.Block(8, 10)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 8)},
 		},
 		{
 			name:   "One block after slot",
-			blocks: []*goslotify.Block{h.Block(9, 10)},
+			blocks: []*timeslots.Block{h.Block(9, 10)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 8)},
 		},
 		{
 			name:   "Two block are contained in slot",
-			blocks: []*goslotify.Block{h.Block(1, 2), h.Block(6, 7)},
+			blocks: []*timeslots.Block{h.Block(1, 2), h.Block(6, 7)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 1), h.Slot(2, 6), h.Slot(7, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 1), h.Slot(2, 6), h.Slot(7, 8)},
 		},
 		{
 			name:   "Two block overlaps each other are contained in slot",
-			blocks: []*goslotify.Block{h.Block(1, 4), h.Block(2, 5)},
+			blocks: []*timeslots.Block{h.Block(1, 4), h.Block(2, 5)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
-			want: []*goslotify.Slot{h.Slot(0, 1), h.Slot(5, 8)},
+			want: []*timeslots.Slot{h.Slot(0, 1), h.Slot(5, 8)},
 		},
 		{
 			name:   "Huge blocks overlap each other are contained in slot",
 			blocks: h.HugeBlocks(1, 799),
 			search: h.Span(0, 799),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return false
 			},
 			want: h.HugeSlots(0, 799),
 		},
 		{
 			name:   "One block is contained in slot with filter",
-			blocks: []*goslotify.Block{h.Block(1, 5)},
+			blocks: []*timeslots.Block{h.Block(1, 5)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return s.End().Sub(s.Start()) < (2 * time.Hour)
 			},
-			want: []*goslotify.Slot{h.Slot(5, 8)},
+			want: []*timeslots.Slot{h.Slot(5, 8)},
 		},
 		{
 			name:   "One block with overlap at end with filter",
-			blocks: []*goslotify.Block{h.Block(3, 9)},
+			blocks: []*timeslots.Block{h.Block(3, 9)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return s.End().Sub(s.Start()) < (4 * time.Hour)
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 		{
 			name:   "One block after slot with filter",
-			blocks: []*goslotify.Block{h.Block(9, 10)},
+			blocks: []*timeslots.Block{h.Block(9, 10)},
 			search: h.Span(0, 8),
-			filter: func(s *goslotify.Slot) bool {
+			filter: func(s *timeslots.Slot) bool {
 				return s.End().Sub(s.Start()) > (2 * time.Hour)
 			},
-			want: []*goslotify.Slot{},
+			want: []*timeslots.Slot{},
 		},
 	}
 }
@@ -206,7 +206,7 @@ func TestFind(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := goslotify.Find(tt.blocks, tt.search, goslotify.WithFilter(tt.filter))
+			got := timeslots.Find(tt.blocks, tt.search, timeslots.WithFilter(tt.filter))
 			if !slice.Equal(got, tt.want) {
 				t.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 			}
@@ -218,17 +218,17 @@ func TestFindWithMapper(t *testing.T) {
 	h := NewTestingHelper(now)
 	tests := testCases(h)
 
-	mapIn := func(b *goslotify.Block) *goslotify.Block {
+	mapIn := func(b *timeslots.Block) *timeslots.Block {
 		return b
 	}
 
-	mapOut := func(s *goslotify.Slot) *goslotify.Slot {
+	mapOut := func(s *timeslots.Slot) *timeslots.Slot {
 		return s
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := goslotify.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, goslotify.WithFilter(tt.filter))
+			got := timeslots.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, timeslots.WithFilter(tt.filter))
 			if !slice.Equal(got, tt.want) {
 				t.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 			}
@@ -244,7 +244,7 @@ func BenchmarkFind(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, tt := range tests {
 			b.Run(tt.name, func(b *testing.B) {
-				got := goslotify.Find(tt.blocks, tt.search, goslotify.WithFilter(tt.filter))
+				got := timeslots.Find(tt.blocks, tt.search, timeslots.WithFilter(tt.filter))
 				if !slice.Equal(got, tt.want) {
 					b.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 				}
@@ -258,18 +258,18 @@ func BenchmarkFindWithMapper(b *testing.B) {
 	tests := testCases(h)
 	b.ResetTimer()
 
-	mapIn := func(b *goslotify.Block) *goslotify.Block {
+	mapIn := func(b *timeslots.Block) *timeslots.Block {
 		return b
 	}
 
-	mapOut := func(s *goslotify.Slot) *goslotify.Slot {
+	mapOut := func(s *timeslots.Slot) *timeslots.Slot {
 		return s
 	}
 
 	for i := 0; i < b.N; i++ {
 		for _, tt := range tests {
 			b.Run(tt.name, func(t *testing.B) {
-				got := goslotify.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, goslotify.WithFilter(tt.filter))
+				got := timeslots.FindWithMapper(tt.blocks, tt.search, mapIn, mapOut, timeslots.WithFilter(tt.filter))
 				if !slice.Equal(got, tt.want) {
 					t.Errorf("got: %v, want: %v", slice.String(got), slice.String(tt.want))
 				}

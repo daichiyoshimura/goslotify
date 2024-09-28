@@ -1,8 +1,8 @@
-package goslotify_test
+package timeslots_test
 
 import (
 	"fmt"
-	"goslotify"
+	"timeslots"
 	"testing"
 	"time"
 )
@@ -31,7 +31,7 @@ func TestNewBlock(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := goslotify.NewBlock(tt.start, tt.end)
+			_, err := timeslots.NewBlock(tt.start, tt.end)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewBlock() error = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -48,27 +48,27 @@ func TestNewBlocks(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		mapper  func(input Input) (*goslotify.Block, error)
-		want    []*goslotify.Block
+		mapper  func(input Input) (*timeslots.Block, error)
+		want    []*timeslots.Block
 		wantErr bool
 	}{
 		{
 			name: "Create multiple blocks",
-			mapper: func(input Input) (*goslotify.Block, error) {
-				return goslotify.NewBlock(input.start, input.end)
+			mapper: func(input Input) (*timeslots.Block, error) {
+				return timeslots.NewBlock(input.start, input.end)
 			},
-			want: []*goslotify.Block{
-				goslotify.NewBlockWithoutValidating(now.Add(1*time.Hour), now.Add(3*time.Hour)),
-				goslotify.NewBlockWithoutValidating(now.Add(2*time.Hour), now.Add(4*time.Hour)),
+			want: []*timeslots.Block{
+				timeslots.NewBlockWithoutValidating(now.Add(1*time.Hour), now.Add(3*time.Hour)),
+				timeslots.NewBlockWithoutValidating(now.Add(2*time.Hour), now.Add(4*time.Hour)),
 			},
 			wantErr: false,
 		},
 		{
 			name: "Broken mapper",
-			mapper: func(input Input) (*goslotify.Block, error) {
+			mapper: func(input Input) (*timeslots.Block, error) {
 				return nil, fmt.Errorf("broken")
 			},
-			want:    []*goslotify.Block{},
+			want:    []*timeslots.Block{},
 			wantErr: true,
 		},
 	}
@@ -80,7 +80,7 @@ func TestNewBlocks(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := goslotify.NewBlocks(inputs, tt.mapper)
+			got, err := timeslots.NewBlocks(inputs, tt.mapper)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewBlock() error = %v, wantErr = %v", err, tt.wantErr)
 			}
@@ -93,19 +93,19 @@ func TestNewBlocks(t *testing.T) {
 
 func TestContains(t *testing.T) {
 
-	block := goslotify.NewBlockWithoutValidating(
+	block := timeslots.NewBlockWithoutValidating(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
 
 	tests := []struct {
 		name  string
-		other goslotify.Period
+		other timeslots.Period
 		want  bool
 	}{
 		{
 			name: "No overlap at end, before ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-2*time.Hour),
 				now.Add(-1*time.Hour),
 			),
@@ -113,7 +113,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "No overlap at end, end is ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(0*time.Hour),
 			),
@@ -121,7 +121,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -129,7 +129,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -137,7 +137,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -145,7 +145,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -153,7 +153,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -161,7 +161,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -169,7 +169,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, start is ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(8*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -177,7 +177,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, after ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(9*time.Hour),
 				now.Add(10*time.Hour),
 			),
@@ -185,7 +185,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Is contained in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -193,7 +193,7 @@ func TestContains(t *testing.T) {
 		},
 		{
 			name: "Contains in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(1*time.Hour),
 				now.Add(7*time.Hour),
 			),
@@ -212,19 +212,19 @@ func TestContains(t *testing.T) {
 
 func TestIsContainedIn(t *testing.T) {
 
-	block := goslotify.NewBlockWithoutValidating(
+	block := timeslots.NewBlockWithoutValidating(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
 
 	tests := []struct {
 		name  string
-		other goslotify.Period
+		other timeslots.Period
 		want  bool
 	}{
 		{
 			name: "No overlap at end, before ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-2*time.Hour),
 				now.Add(-1*time.Hour),
 			),
@@ -232,7 +232,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "No overlap at end, end is ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(0*time.Hour),
 			),
@@ -240,7 +240,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -248,7 +248,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -256,7 +256,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -264,7 +264,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -272,7 +272,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -280,7 +280,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -288,7 +288,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, start is ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(8*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -296,7 +296,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, after ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(9*time.Hour),
 				now.Add(10*time.Hour),
 			),
@@ -304,7 +304,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Is contained in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -312,7 +312,7 @@ func TestIsContainedIn(t *testing.T) {
 		},
 		{
 			name: "Contains in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(1*time.Hour),
 				now.Add(7*time.Hour),
 			),
@@ -331,19 +331,19 @@ func TestIsContainedIn(t *testing.T) {
 
 func TestOverlapAtStart(t *testing.T) {
 
-	block := goslotify.NewBlockWithoutValidating(
+	block := timeslots.NewBlockWithoutValidating(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
 
 	tests := []struct {
 		name  string
-		other goslotify.Period
+		other timeslots.Period
 		want  bool
 	}{
 		{
 			name: "No overlap at end, before ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-2*time.Hour),
 				now.Add(-1*time.Hour),
 			),
@@ -351,7 +351,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "No overlap at end, end is ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(0*time.Hour),
 			),
@@ -359,7 +359,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -367,7 +367,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -375,7 +375,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -383,7 +383,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -391,7 +391,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -399,7 +399,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -407,7 +407,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, start is ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(8*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -415,7 +415,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, after ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(9*time.Hour),
 				now.Add(10*time.Hour),
 			),
@@ -423,7 +423,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Is contained in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -431,7 +431,7 @@ func TestOverlapAtStart(t *testing.T) {
 		},
 		{
 			name: "Contains in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(1*time.Hour),
 				now.Add(7*time.Hour),
 			),
@@ -450,19 +450,19 @@ func TestOverlapAtStart(t *testing.T) {
 
 func TestOverlapAtEnd(t *testing.T) {
 
-	block := goslotify.NewBlockWithoutValidating(
+	block := timeslots.NewBlockWithoutValidating(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
 
 	tests := []struct {
 		name  string
-		other goslotify.Period
+		other timeslots.Period
 		want  bool
 	}{
 		{
 			name: "No overlap at end, before ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-2*time.Hour),
 				now.Add(-1*time.Hour),
 			),
@@ -470,7 +470,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "No overlap at end, end is ther other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(0*time.Hour),
 			),
@@ -478,7 +478,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -486,7 +486,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -494,7 +494,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at end, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(1*time.Hour),
 			),
@@ -502,7 +502,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -510,7 +510,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, end is the other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(7*time.Hour),
 				now.Add(8*time.Hour),
 			),
@@ -518,7 +518,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Overlap at start, start is the other start",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(0*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -526,7 +526,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, start is ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(8*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -534,7 +534,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "No overlap at start, after ther other end",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(9*time.Hour),
 				now.Add(10*time.Hour),
 			),
@@ -542,7 +542,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Is contained in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(-1*time.Hour),
 				now.Add(9*time.Hour),
 			),
@@ -550,7 +550,7 @@ func TestOverlapAtEnd(t *testing.T) {
 		},
 		{
 			name: "Contains in the other",
-			other: goslotify.NewBlockWithoutValidating(
+			other: timeslots.NewBlockWithoutValidating(
 				now.Add(1*time.Hour),
 				now.Add(7*time.Hour),
 			),
@@ -571,12 +571,12 @@ func TestBlockString(t *testing.T) {
 
 	start := now.Add(0 * time.Hour)
 	end := now.Add(8 * time.Hour)
-	span, _ := goslotify.NewBlock(
+	span, _ := timeslots.NewBlock(
 		start,
 		end,
 	)
 
-	want := fmt.Sprintf("%s, %s", start.Format(goslotify.TimeFormat), end.Format(goslotify.TimeFormat))
+	want := fmt.Sprintf("%s, %s", start.Format(timeslots.TimeFormat), end.Format(timeslots.TimeFormat))
 	got := span.String()
 	if got != want {
 		t.Errorf("Slot.String() = %s; want %s", got, want)

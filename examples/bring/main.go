@@ -5,7 +5,7 @@ package main
 
 import (
 	"fmt"
-	"goslotify"
+	"timeslots"
 	"strings"
 	"time"
 )
@@ -33,7 +33,7 @@ func main() {
 	now := time.Now()
 
 	// This variable will probably be retrieved from something like a request. Since this is an example, we’ll create it artificially.
-	span, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
+	span, err := timeslots.NewSpan(now, now.Add(8*time.Hour))
 	if err != nil {
 		panic(err)
 	}
@@ -63,8 +63,8 @@ func main() {
 	}))
 
 	// To convert internally, define the map function for your input
-	mapin := func(s *ScheduledEvent) *goslotify.Block {
-		b, _ := goslotify.NewBlock(s.StartAt, s.EndAt)
+	mapin := func(s *ScheduledEvent) *timeslots.Block {
+		b, _ := timeslots.NewBlock(s.StartAt, s.EndAt)
 		return b
 	}
 
@@ -74,7 +74,7 @@ func main() {
 		Start   time.Time
 		End     time.Time
 	}
-	mapout := func(s *goslotify.Slot) *DiningTableSlot {
+	mapout := func(s *timeslots.Slot) *DiningTableSlot {
 		return &DiningTableSlot{
 			TableId: 1,
 			Start:   s.Start(),
@@ -88,7 +88,7 @@ func main() {
 	}
 
 	// Find available time slots!
-	slots := goslotify.FindWithMapper(events, span, mapin, mapout, goslotify.WithFilter(filter))
+	slots := timeslots.FindWithMapper(events, span, mapin, mapout, timeslots.WithFilter(filter))
 	fmt.Println("Available Time Slots(slots: []*TimeSlot):\n" + toString(slots, func(builder *strings.Builder, slot *DiningTableSlot) {
 		builder.WriteString(fmt.Sprintf("%s, %s", slot.Start.Format(TimeFormat), slot.End.Format(TimeFormat)))
 		builder.WriteString("\n")

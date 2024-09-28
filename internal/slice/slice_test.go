@@ -1,7 +1,7 @@
 package slice_test
 
 import (
-	"goslotify/internal/slice"
+	"timeslots/internal/slice"
 	"reflect"
 	"testing"
 )

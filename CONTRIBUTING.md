@@ -1,6 +1,6 @@
-# Contributing to Slotify
+# Contributing to TimeSlots
 
-Thank you for considering contributing to **Slotify**! We appreciate your interest in helping us improve the project. By participating, you agree to abide by our code of conduct and to follow the guidelines outlined below.
+Thank you for considering contributing to **TimeSlots**! We appreciate your interest in helping us improve the project. By participating, you agree to abide by our code of conduct and to follow the guidelines outlined below.
 
 ## How to Contribute
 
@@ -26,7 +26,7 @@ Click the "Fork" button in the top right corner of the repository page.
 Clone your fork to your local machine using the command:
 
 ```bash
-    git clone https://github.com/daichiyoshimura/goslotify.git
+    git clone https://github.com/daichiyoshimura/timeslots.git
 ```
 
 1. **Create a Branch**
@@ -65,4 +65,4 @@ Please follow the existing code style used in the project. Consistency helps kee
 
 Please be respectful and considerate of others when contributing. We have a [Code of Conduct](link to code of conduct) that outlines our expectations for participation.
 
-Thank you for your contributions and support for **Slotify**!
+Thank you for your contributions and support for **TimeSlots**!

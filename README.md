@@ -1,4 +1,4 @@
-# GoSlotify
+# TimeSlots
 
 Find available time slots in Go.
 
@@ -17,7 +17,7 @@ See `example` directory and type `go run examples/prepared/main.go `
 
 ```go
  // This variable will probably be retrieved from something like a request. Since this is an example, we’ll create it artificially.
- span, err := goslotify.NewSpan(now, now.Add(8*time.Hour))
+ span, err := timeslots.NewSpan(now, now.Add(8*time.Hour))
  ...
  
  // This variable will probably be retrieved from something like a database record. Since this is an example, we’ll create it artificially.
@@ -29,15 +29,15 @@ See `example` directory and type `go run examples/prepared/main.go `
   ...
  }
 
- // Please define a function for the second argument that maps the values passed to `goslotify.NewBlock` to the fields of your struct.
- blocks, err := goslotify.NewBlocks(events, func(s *ScheduledEvent) (*goslotify.Block, error) {
-  return goslotify.NewBlock(s.Start, s.End)
+ // Please define a function for the second argument that maps the values passed to `timeslots.NewBlock` to the fields of your struct.
+ blocks, err := timeslots.NewBlocks(events, func(s *ScheduledEvent) (*timeslots.Block, error) {
+  return timeslots.NewBlock(s.Start, s.End)
  })
  ...
  
  // Find available time slots!
- slots := goslotify.Find(blocks, span)
- fmt.Println("Available Times (slots):\n" + goslotify.ToString(slots))
+ slots := timeslots.Find(blocks, span)
+ fmt.Println("Available Times (slots):\n" + timeslots.ToString(slots))
 ```
 
 Result 

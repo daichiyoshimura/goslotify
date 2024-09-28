@@ -1,8 +1,8 @@
-package goslotify_test
+package timeslots_test
 
 import (
 	"fmt"
-	"goslotify"
+	"timeslots"
 	"testing"
 	"time"
 )
@@ -30,7 +30,7 @@ func TestNewSlot(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			slot, err := goslotify.NewSlot(tt.start, tt.end)
+			slot, err := timeslots.NewSlot(tt.start, tt.end)
 			if (err != nil) != tt.wantError {
 				t.Errorf("NewSlot() error = %v, wantError %v", err, tt.wantError)
 			}
@@ -44,15 +44,15 @@ func TestNewSlot(t *testing.T) {
 }
 
 func TestSlotEqual(t *testing.T) {
-	slot1, _ := goslotify.NewSlot(
+	slot1, _ := timeslots.NewSlot(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
-	slot2, _ := goslotify.NewSlot(
+	slot2, _ := timeslots.NewSlot(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
-	slot3, _ := goslotify.NewSlot(
+	slot3, _ := timeslots.NewSlot(
 		now.Add(1*time.Hour),
 		now.Add(9*time.Hour),
 	)
@@ -67,11 +67,11 @@ func TestSlotEqual(t *testing.T) {
 }
 
 func TestSlotSmallerThan(t *testing.T) {
-	slot1, _ := goslotify.NewSlot(
+	slot1, _ := timeslots.NewSlot(
 		now.Add(0*time.Hour),
 		now.Add(8*time.Hour),
 	)
-	slot2, _ := goslotify.NewSlot(
+	slot2, _ := timeslots.NewSlot(
 		now.Add(1*time.Hour),
 		now.Add(9*time.Hour),
 	)
@@ -88,12 +88,12 @@ func TestSlotSmallerThan(t *testing.T) {
 func TestSlotString(t *testing.T) {
 	start := now.Add(0 * time.Hour)
 	end := now.Add(8 * time.Hour)
-	slot, _ := goslotify.NewSlot(
+	slot, _ := timeslots.NewSlot(
 		start,
 		end,
 	)
 
-	want := fmt.Sprintf("%s, %s", start.Format(goslotify.TimeFormat), end.Format(goslotify.TimeFormat))
+	want := fmt.Sprintf("%s, %s", start.Format(timeslots.TimeFormat), end.Format(timeslots.TimeFormat))
 	got := slot.String()
 	if got != want {
 		t.Errorf("Slot.String() = %s; want %s", got, want)

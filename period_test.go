@@ -1,8 +1,8 @@
-package goslotify_test
+package timeslots_test
 
 import (
 	"fmt"
-	"goslotify"
+	"timeslots"
 	"testing"
 	"time"
 )
@@ -27,33 +27,33 @@ func (m MockPeriod) String() string {
 func TestToString(t *testing.T) {
 	tests := []struct {
 		name   string
-		input  []goslotify.Period
+		input  []timeslots.Period
 		output string
 	}{
 		{
 			name: "Multiple periods",
-			input: []goslotify.Period{
+			input: []timeslots.Period{
 				MockPeriod{start: now.Add(0 * time.Hour), end: now.Add(1 * time.Hour)},
 				MockPeriod{start: now.Add(2 * time.Hour), end: now.Add(3 * time.Hour)},
 			},
 			output: fmt.Sprintf(
 				"%s, %s\n%s, %s\n",
-				now.Add(0*time.Hour).Format(goslotify.TimeFormat),
-				now.Add(1*time.Hour).Format(goslotify.TimeFormat),
-				now.Add(2*time.Hour).Format(goslotify.TimeFormat),
-				now.Add(3*time.Hour).Format(goslotify.TimeFormat),
+				now.Add(0*time.Hour).Format(timeslots.TimeFormat),
+				now.Add(1*time.Hour).Format(timeslots.TimeFormat),
+				now.Add(2*time.Hour).Format(timeslots.TimeFormat),
+				now.Add(3*time.Hour).Format(timeslots.TimeFormat),
 			),
 		},
 		{
 			name:   "Empty periods",
-			input:  []goslotify.Period{},
+			input:  []timeslots.Period{},
 			output: "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := goslotify.ToString(tt.input)
+			result := timeslots.ToString(tt.input)
 			if result != tt.output {
 				t.Errorf("expected: %v, got: %v", tt.output, result)
 			}
